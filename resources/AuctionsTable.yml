@@ -1,0 +1,11 @@
+AuctionsTable: # logical id for a resource
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: AuctionsTable-${self:provider.stage} # self = serverless.yml
+    BillingMode: PAY_PER_REQUEST
+    AttributeDefinitions: # attributes that must be in each item in the table
+      - AttributeName: id
+        AttributeType: S # String
+    KeySchema: # tell dynamoDB id is our PK
+      - AttributeName: id
+        KeyType: HASH 

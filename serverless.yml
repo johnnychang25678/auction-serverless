@@ -1,0 +1,54 @@
+service:
+  name: auction-service
+
+plugins:
+  - serverless-bundle # allows us to bundle application with webpack
+  - serverless-pseudo-parameters
+
+provider: # application level (node.js)
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256 # lamda size
+  stage: ${opt:stage, 'dev'} # ${} is yaml variable. if stage is undefined, use dev
+  region: us-east-2
+  environment: 
+    AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
+  iamRoleStatements:  
+    - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM} # import method from serverless framework
+
+resources: # the resources, or AWS services used (ex: DynamoDB)
+  Resources: # cloudformation
+    AuctionsTable: ${file(resources/AuctionsTable.yml):AuctionsTable}
+
+functions: # the lamda function
+  createAuction: # this function will be triggered if POST event to /auction
+    handler: src/handlers/createAuction.handler
+    events: # function needs events to be triggered
+      - http:
+          method: POST
+          path: /auction
+  getAuctions:
+    handler: src/handlers/getAuctions.handler
+    events: 
+      - http:
+          method: GET
+          path: /auctions
+  getAuction:
+    handler: src/handlers/getAuction.handler
+    events: 
+      - http:
+          method: GET
+          path: /auction/{id} # serverless framework way of params
+  placeBid:
+    handler: src/handlers/placeBid.handler
+    events: 
+      - http:
+          method: PATCH # use patch when you are patching a property of your resource
+          path: /auction/{id}/bid # serverless framework way of params
+
+custom:
+  AuctionsTable:
+    name: !Ref AuctionsTable #cloudFormation intrinsic function
+    arn: !GetAtt AuctionsTable.Arn
+  # bundle:
+  #   linting: false
