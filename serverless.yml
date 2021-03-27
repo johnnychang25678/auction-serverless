@@ -50,5 +50,5 @@ custom:
   AuctionsTable:
     name: !Ref AuctionsTable #cloudFormation intrinsic function
     arn: !GetAtt AuctionsTable.Arn
-  # bundle:
-  #   linting: false
+  bundle:
+    linting: false # to not use linting in serverless-bundle
