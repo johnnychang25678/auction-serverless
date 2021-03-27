@@ -6,6 +6,20 @@ AuctionsTable: # logical id for a resource
     AttributeDefinitions: # attributes that must be in each item in the table
       - AttributeName: id
         AttributeType: S # String
+      - AttributeName: status
+        AttributeType: S
+      - AttributeName: endingAt
+        AttributeType: S
+      
     KeySchema: # tell dynamoDB id is our PK
       - AttributeName: id
         KeyType: HASH 
+    GlobalSecondaryIndexes: 
+      - IndexName: statusAndEndDate
+        KeySchema:
+          - AttributeName: status
+            KeyType: HASH
+          - AttributeName: endingAt
+            KeyType: RANGE
+        Projection:
+          ProjectionType: ALL # which attributes store in the copied index table

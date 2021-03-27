@@ -1,0 +1,23 @@
+import AWS from 'aws-sdk'
+
+const dynamoDb = new AWS.DynamoDB.DocumentClient()
+
+export async function getEndedAuctions() {
+  const now = new Date()
+  const params = {
+    TableName: process.env.AUCTIONS_TABLE_NAME,
+    IndexName: 'statusAndEndDate',
+    KeyConditionExpression: '#status = :status AND endingAt <= :now',
+    ExpressionAttributeValues: {
+      ':status': 'OPEN',
+      ':now': now.toISOString() // DynamoDB can use condition on date string directly
+    },
+    ExpressionAttributeNames: {
+      '#status': 'status' // 'status' is a reserved word
+    }
+  }
+
+  const result = await dynamoDb.query(params).promise()
+  return result.Items
+
+}
