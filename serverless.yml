@@ -13,8 +13,10 @@ provider: # application level (node.js)
   region: us-east-2
   environment: 
     AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
+    MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
   iamRoleStatements:  
     - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM} # import method from serverless framework
+    - ${file(iam/MailQueueIAM.yml):MailQueueIAM}
 
 resources: # the resources, or AWS services used (ex: DynamoDB)
   Resources: # cloudformation
@@ -60,5 +62,8 @@ custom:
   AuctionsTable:
     name: !Ref AuctionsTable #cloudFormation intrinsic function
     arn: !GetAtt AuctionsTable.Arn
+  MailQueue:
+    arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+    url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
   bundle:
     linting: false # to not use linting in serverless-bundle
