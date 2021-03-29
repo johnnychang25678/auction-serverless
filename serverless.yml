@@ -27,30 +27,36 @@ functions: # the lamda function
       - http:
           method: POST
           path: /auction
+          authorizer: ${self:custom.authorizer}
   getAuctions:
     handler: src/handlers/getAuctions.handler
     events: 
       - http:
           method: GET
           path: /auctions
+          authorizer: ${self:custom.authorizer}
   getAuction:
     handler: src/handlers/getAuction.handler
     events: 
       - http:
           method: GET
           path: /auction/{id} # serverless framework way of params
+          authorizer: ${self:custom.authorizer}
   placeBid:
     handler: src/handlers/placeBid.handler
     events: 
       - http:
           method: PATCH # use patch when you are patching a property of your resource
           path: /auction/{id}/bid # serverless framework way of params
+          authorizer: ${self:custom.authorizer}
   processAuctions:
     handler: src/handlers/processAuctions.handler
     # events:
     #   - schedule: rate(1 minute) # send event with AWS eventBridge every minute
 
 custom:
+  authorizer: arn:aws:lambda:us-east-2:843542129778:function:auth-service-dev-auth
+    #arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:auth-service-${self:provider.stage}-auth
   AuctionsTable:
     name: !Ref AuctionsTable #cloudFormation intrinsic function
     arn: !GetAtt AuctionsTable.Arn
