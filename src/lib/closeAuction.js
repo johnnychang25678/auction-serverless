@@ -20,6 +20,17 @@ export async function closeAuction(auction) { // change status from OPEN to CLOS
 
   const {title, seller, highestBid} = auction
   const {amount, bidder} = highestBid
+  if (!bidder) {
+    await sqs.sendMessage({
+      QueueUrl: process.env.MAIL_QUEUE_URL,
+      MessageBody: JSON.stringify({
+        subject: 'Your auction is expired with no bids',
+        recipient: seller,
+        body: 'No one bid on your item'
+      })
+    }).promise()
+    return 
+  }
 
   const notfifySeller = sqs.sendMessage({
     QueueUrl: process.env.MAIL_QUEUE_URL,
