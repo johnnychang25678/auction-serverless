@@ -34,6 +34,7 @@ functions: # the lamda function
           method: POST
           path: /auction
           authorizer: ${self:custom.authorizer}
+          cors: true # enable cors
   getAuctions:
     handler: src/handlers/getAuctions.handler
     events: 
@@ -41,6 +42,7 @@ functions: # the lamda function
           method: GET
           path: /auctions
           authorizer: ${self:custom.authorizer}
+          cors: true
   getAuction:
     handler: src/handlers/getAuction.handler
     events: 
@@ -48,6 +50,7 @@ functions: # the lamda function
           method: GET
           path: /auction/{id} # serverless framework way of params
           authorizer: ${self:custom.authorizer}
+          cors: true
   placeBid:
     handler: src/handlers/placeBid.handler
     events: 
@@ -55,6 +58,7 @@ functions: # the lamda function
           method: PATCH # use patch when you are patching a property of your resource
           path: /auction/{id}/bid # serverless framework way of params
           authorizer: ${self:custom.authorizer}
+          cors: true
   uploadAuctionPicture:
     handler: src/handlers/uploadAuctionPicture.handler
     events: 
@@ -62,6 +66,7 @@ functions: # the lamda function
           method: PATCH 
           path: /auction/{id}/picture 
           authorizer: ${self:custom.authorizer}
+          cors: true
   processAuctions:
     handler: src/handlers/processAuctions.handler
     # events:
