@@ -14,13 +14,17 @@ provider: # application level (node.js)
   environment: 
     AUCTIONS_TABLE_NAME: ${self:custom.AuctionsTable.name}
     MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
-  iamRoleStatements:  
+    AUCTIONS_BUCKET_NAME: ${self:custom.AuctionsBucket.name}
+  iamRoleStatements:  # all the lambdas have unique IAM, need to give access to resources
     - ${file(iam/AuctionsTableIAM.yml):AuctionsTableIAM} # import method from serverless framework
     - ${file(iam/MailQueueIAM.yml):MailQueueIAM}
+    - ${file(iam/AuctionsBucketIAM.yml):AuctionsBucketIAM}
 
 resources: # the resources, or AWS services used (ex: DynamoDB)
   Resources: # cloudformation
     AuctionsTable: ${file(resources/AuctionsTable.yml):AuctionsTable}
+    AuctionsBucket: ${file(resources/AuctionsBucket.yml):AuctionsBucket}
+    AuctionsBucketPolicy: ${file(resources/AuctionsBucket.yml):AuctionsBucketPolicy}
 
 functions: # the lamda function
   createAuction: # this function will be triggered if POST event to /auction
@@ -51,6 +55,13 @@ functions: # the lamda function
           method: PATCH # use patch when you are patching a property of your resource
           path: /auction/{id}/bid # serverless framework way of params
           authorizer: ${self:custom.authorizer}
+  uploadAuctionPicture:
+    handler: src/handlers/uploadAuctionPicture.handler
+    events: 
+      - http:
+          method: PATCH 
+          path: /auction/{id}/picture 
+          authorizer: ${self:custom.authorizer}
   processAuctions:
     handler: src/handlers/processAuctions.handler
     # events:
@@ -65,5 +76,7 @@ custom:
   MailQueue:
     arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
     url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
+  AuctionsBucket:
+    name: auctions-bucket-ejaioejoaw-${self:provider.stage}
   bundle:
     linting: false # to not use linting in serverless-bundle
